@@ -53,6 +53,16 @@ function animateParticles() {
   rainGeo.verticesNeedUpdate = true;
 }
 
+function rainColor() {
+  let r = Math.random(256);
+  let g = Math.random(256);
+  let b = Math.random(256);
+
+  rain.material.color.setRGB(r, g, b);
+}
+
+setInterval(rainColor, 3000);
+
 function text() {
   const texture = new THREE.TextureLoader().load("../assets/textures/wooden.jpg");
   
