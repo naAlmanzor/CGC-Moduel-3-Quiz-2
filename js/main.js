@@ -1,3 +1,7 @@
+import * as THREE from './three.module.js';
+import { FontLoader } from './FontLoader.js';
+import { TextGeometry } from './TextGeometry.js';
+
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
   75,
@@ -8,53 +12,64 @@ const camera = new THREE.PerspectiveCamera(
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
-let cubeMesh = new THREE.Mesh();
-let stars, starGeo;
+let textMesh = new THREE.Mesh();
+let rain, rainGeo;
 
 lighting();
-cube();
+text();
 particles();
 
 function particles() {
   const points = [];
 
   for (let i = 0; i < 6000; i++) {
-    let star = new THREE.Vector3(
+    let rainDrop = new THREE.Vector3(
       Math.random() * 600 - 300,
       Math.random() * 600 - 300,
       Math.random() * 600 - 300
     );
-    points.push(star);
+    points.push(rainDrop);
   }
 
-  starGeo = new THREE.BufferGeometry().setFromPoints(points);
+  rainGeo = new THREE.BufferGeometry().setFromPoints(points);
 
-  let sprite = new THREE.TextureLoader().load("assets/images/star.png");
-  let starMaterial = new THREE.PointsMaterial({
+  let sprite = new THREE.TextureLoader().load("../assets/images/star.png");
+  let rainMaterial = new THREE.PointsMaterial({
     color: 0xffb6c1,
     size: 0.7,
     map: sprite,
   });
 
-  stars = new THREE.Points(starGeo, starMaterial);
-  scene.add(stars);
+  rain = new THREE.Points(rainGeo, rainMaterial);
+  scene.add(rain);
 }
 
 function animateParticles() {
-    starGeo.verticesNeedUpdate = true;
-    stars.position.y -= 0.9;
+  rain.position.y -= 0.9;
+
+  if (rain.position.y < -200){
+    rain.position.y = 200;
   }
+  rainGeo.verticesNeedUpdate = true;
+}
 
-function cube() {
-  const texture = new THREE.TextureLoader().load("assets/textures/wooden.jpg");
-  const cubeMaterial = new THREE.MeshBasicMaterial({ map: texture });
-  const cubeGeometry = new THREE.BoxGeometry(10, 5, 5, 5);
-  cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
+function text() {
+  const texture = new THREE.TextureLoader().load("../assets/textures/wooden.jpg");
+  
 
-  cubeMesh.position.z = -5;
-  camera.position.z = 15;
-
-  scene.add(cubeMesh);
+  const loader = new FontLoader();
+  loader.load('../assets/fonts/Montserrat_Regular.json', function(font) {
+    const textGeometry = new TextGeometry('NEIL', {
+      font: font,
+      size:5,
+      height:1,
+    })
+    textGeometry.center();
+    const textMaterial = new THREE.MeshPhongMaterial({ map: texture });
+    textMesh = new THREE.Mesh(textGeometry,textMaterial);
+    scene.add(textMesh);
+  });
+  camera.position.z = 20;
 }
 
 function lighting() {
@@ -77,8 +92,9 @@ function animate() {
 
   animateParticles();
 
-  cubeMesh.rotation.x += 0.008;
-  cubeMesh.rotation.y += 0.008;
+  textMesh.rotation.x += 0.008
+  textMesh.rotation.y += 0.008
+ 
   renderer.render(scene, camera);
 }
 
